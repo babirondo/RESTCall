@@ -1,5 +1,5 @@
 <?php
-namespace raiz;
+namespace REST;
 error_reporting(E_ALL ^ E_DEPRECATED ^ E_NOTICE);
 
 class RESTCall
