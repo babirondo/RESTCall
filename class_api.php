@@ -12,11 +12,11 @@ class RESTCall
 
     function CallAPI($method, $url, $data = false)
     {
-        require_once("include/globais.php");
-        $Globais = new Globais();
+      //  require_once("include/globais.php");
+//        $Globais = new Globais();
 
         $curl = curl_init();
-        if ($Globais->env =="local") $verbose= 1;
+  //      if ($Globais->env =="local") $verbose= 1;
 
         switch ($method)
         {
