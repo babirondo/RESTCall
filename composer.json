@@ -2,7 +2,6 @@
     "name": "rest-api/rest-api",
     "description": "A simple class to call and manage REST API calls",
     "require": {
-        "php": ">=5.3.3",
-        "another-vendor/package": "1.*"
+        "php": ">=5.3.3"
     }
 }
