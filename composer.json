@@ -3,5 +3,10 @@
     "description": "A simple class to call and manage REST API calls",
     "require": {
         "php": ">=5.3.3"
-    }
+    },
+    "autoload": {
+        "psr-4": {
+            "REST\\": "RESTCall"
+        }
+    },
 }
