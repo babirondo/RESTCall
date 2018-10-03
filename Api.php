@@ -16,7 +16,8 @@ class RESTCall
 //        $Globais = new Globais();
 
         $curl = curl_init();
-  //      if ($Globais->env =="local") $verbose= 1;
+  //      if ($Globais->env =="local")
+  $verbose= 1;
 
         switch ($method)
         {
