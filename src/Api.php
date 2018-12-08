@@ -1,14 +1,10 @@
 <?php
-namespace REST;
-error_reporting(E_ALL ^ E_DEPRECATED ^ E_NOTICE);
+namespace babirondo\REST;
 
 class RESTCall
 {
 
-    function __construct( ){
 
-
-    }
 
     function CallAPI($method, $url, $data = false)
     {
