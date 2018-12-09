@@ -1,5 +1,5 @@
 <?php
-namespace REST;
+namespace babirondo\REST;
 
 class RESTCall
 {
