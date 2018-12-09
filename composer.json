@@ -12,8 +12,8 @@
     ],
     "minimum-stability": "dev",
     "autoload": {
-       "psr-4": {
-            "babirondo\\REST\\": "src/"
+       "psr-0": {
+           "babirondo\\REST\\": "./"
        }
    }
 }
