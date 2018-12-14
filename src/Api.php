@@ -13,8 +13,8 @@ class RESTCall
 
         $curl = curl_init();
   //      if ($Globais->env =="local")
-  $verbose= 1;
-
+        $verbose= 1;
+        $debug = null;
         switch ($method)
         {
             case "POST":
