@@ -71,9 +71,13 @@ class RESTCall
 
             if  (json_last_error() == JSON_ERROR_NONE){
                 curl_close($curl);
-                return  json_decode( $result , true);
+                $array_retorno_api = json_decode( $result , true);
+
+                $array_retorno_api["babirondo/rest-api"]["http_code"]  = $http_code;
+                return $array_retorno_api ;
             }
             else{
+                $result["babirondo/rest-api"]["httpcode"] = $http_code . "erro";
 
                 curl_close($curl);
                 return  $result;
