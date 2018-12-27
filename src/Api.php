@@ -19,14 +19,32 @@ class RESTCall
     return $novaMsg;//"<FONT color=red></font>";
   }
 
-  function CallAPI($method, $url, $data = false, $verbose='ERRO')
+  function CallAPI($method, $url, $data = false,  $verbose='ERRO')
   {
+
+    $decodeError[0]="JSON_ERROR_NONE";
+    $decodeError[1]=" JSON_ERROR_DEPTH";
+    $decodeError[2]=" JSON_ERROR_STATE_MISMATCH";
+    $decodeError[3]=" JSON_ERROR_CTRL_CHAR";
+    $decodeError[5]=" JSON_ERROR_UTF8";
+    $decodeError[4]=" JSON_ERROR_SYNTAX";
+    $decodeError[7]=" JSON_ERROR_INF_OR_NAN";
+    $decodeError[6]=" JSON_ERROR_RECURSION";
+    $decodeError[8]=" JSON_ERROR_UNSUPPORTED_TYPE";
+
       //$verbose = [NUNCA, SEMPRE, ERRO];
+      $verbose = strtoupper($verbose);
+
       $curl = curl_init();
       $debug = null;
 
-
+      //echo "<BR>$url $verbose $method" ;
+      if ($data != false and !is_array(   json_decode($data,1)  )){
+        echo "<BR><BR><font color=#ff0000>$method = $url =====  Argumento esperado tipo Array mas recebeu ".gettype($data)." ($data)</font>";
+        return false;
+      }
       $data_validado =  $data;
+
       switch ($method)
       {
           case "POST":
@@ -57,7 +75,8 @@ class RESTCall
           default:
               curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "GET");
               $debug.=  " $url   ";
-              if ($data) $url = sprintf("%s?%s", $url, http_build_query($data));
+            //  if ($data) $url = sprintf("%s?%s", $url, http_build_query($data));
+
      }
 
       try {
@@ -75,6 +94,7 @@ class RESTCall
           $teste_json_result = $result;
 
           $parseResposta = ((json_decode( $result , true))? "verdadeiro" : "falso" );
+          //var_dump($result);exit;
 
           /*
           if ($http_code != 200 ||  $parseResposta == "falso" ){
@@ -105,11 +125,12 @@ class RESTCall
 
          $result_identado = $this->IdentaRetorno( $result );
 
-
+         $xtid=uniqid();
          $debug = "
-         <quebralinha>XTID:".uniqid()."<BR>
-         <quebralinha>HOST: ".gethostname ( )." <BR>
+         <quebralinha>XTID:$xtid<BR>
+         <quebralinha>Verbose: $verbose <BR>
          <quebralinha>Endpoint: $url <BR>
+         <quebralinha>HOST: ".gethostname ( )." <BR>
          <quebralinha>Verb: $method<BR>
          <quebralinha>HTTP CODE: <font color=red>$http_code</font> <BR>
          <quebralinha>PARSE (<font color=red>$parseResposta</font>) <BR>
@@ -119,8 +140,6 @@ class RESTCall
          <quebralinha>Retorno da API Call:<BR> <TxEXTAREA cols=90 rows=4>".print_r($result_identado,1)."</TEXTAREA>";
 
 
-
-//ECHO  "<br>HTTP CODE $http_code -- PARSE $parseResposta  --- VERBOSE $verbose ";
 
          if ( ($http_code != 200 ||  $parseResposta == "falso" && ($verbose == "ERRO" || $verbose == "SEMPRE" )) || $verbose == "SEMPRE" )
           echo "\n <BR><BR> $debug <BR>";
@@ -135,8 +154,9 @@ class RESTCall
           }
           else{
             //DEU ERRO
+              ECHO  "<br>$url => HTTP CODE $http_code -- PARSE $parseResposta  --- VERBOSE $verbose <BR>";
             //  $result["babirondo/rest-api"]["httpcode"] = $http_code . "erro";
-                echo "DEU ERRO NA CHAMADA DA API $verbose $http_code $parseResposta ";
+              echo "XTID: $xtid -> DEU ERRO NA CHAMADA DA API ".$decodeError[json_last_error()]." $verbose $http_code $parseResposta ";
 
               curl_close($curl);
               $retorno  = $result ;
