@@ -3,6 +3,15 @@ namespace babirondo\REST;
 
 class RESTCall
 {
+  private $username;
+  private $password;
+
+  function __construct($username="", $password=""){
+    $this->username = $username;
+    $this->password = $password;
+  }
+
+
 
   function IdentaRetorno( $msg ){
     $linhas = explode("<quebralinha>", $msg)  ;
@@ -44,6 +53,11 @@ class RESTCall
         return false;
       }
       $data_validado =  $data;
+
+      if ($this->username != "" && $this->password != ""){
+        curl_setopt($curl, CURLOPT_USERPWD, $this->username.":".$this->password);
+      }
+
 
       switch ($method)
       {
