@@ -31,20 +31,21 @@ class RESTCall
   function CallAPI($method, $url, $data = false,  $verbose='ERRO')
   {
 
-    $decodeError[0]="JSON_ERROR_NONE";
-    $decodeError[1]=" JSON_ERROR_DEPTH";
-    $decodeError[2]=" JSON_ERROR_STATE_MISMATCH";
-    $decodeError[3]=" JSON_ERROR_CTRL_CHAR";
-    $decodeError[5]=" JSON_ERROR_UTF8";
-    $decodeError[4]=" JSON_ERROR_SYNTAX";
-    $decodeError[7]=" JSON_ERROR_INF_OR_NAN";
-    $decodeError[6]=" JSON_ERROR_RECURSION";
-    $decodeError[8]=" JSON_ERROR_UNSUPPORTED_TYPE";
+      $decodeError[0]="JSON_ERROR_NONE";
+      $decodeError[1]=" JSON_ERROR_DEPTH";
+      $decodeError[2]=" JSON_ERROR_STATE_MISMATCH";
+      $decodeError[3]=" JSON_ERROR_CTRL_CHAR";
+      $decodeError[5]=" JSON_ERROR_UTF8";
+      $decodeError[4]=" JSON_ERROR_SYNTAX";
+      $decodeError[7]=" JSON_ERROR_INF_OR_NAN";
+      $decodeError[6]=" JSON_ERROR_RECURSION";
+      $decodeError[8]=" JSON_ERROR_UNSUPPORTED_TYPE";
 
       //$verbose = [NUNCA, SEMPRE, ERRO];
       $verbose = strtoupper($verbose);
 
       $curl = curl_init();
+
       $debug = null;
 
       //echo "<BR>$url $verbose $method" ;
@@ -94,10 +95,19 @@ class RESTCall
      }
 
       try {
-          ini_set('display_errors', '1');
+          $api_connection_timeout = 120;
+          $api_call_timeout = 9;
 
+          ini_set('display_errors', '1');
+          set_time_limit($api_connection_timeout);
+
+
+          //curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept: application/json'));
+          //curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+
+          curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $api_connection_timeout);
+          curl_setopt($curl, CURLOPT_TIMEOUT, $api_call_timeout); //timeout in seconds
           curl_setopt($curl, CURLOPT_URL, $url);
-          curl_setopt($curl, CURLOPT_TIMEOUT, 10);
           curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
           $inicio1 = microtime(true);
@@ -108,34 +118,6 @@ class RESTCall
           $teste_json_result = $result;
 
           $parseResposta = ((json_decode( $result , true))? "verdadeiro" : "falso" );
-          //var_dump($result);exit;
-
-          /*
-          if ($http_code != 200 ||  $parseResposta == "falso" ){
-            $debug = "
-            HOST: ".gethostname ( )." <BR>
-            Endpoint: $url <BR>
-            Verb: $method<BR>
-            HTTP CODE: <font color=red>$http_code</font> <BR>
-            PARSE (<font color=red>$parseResposta</font>) <BR>
-            Tempo Execucao: ($total1) <BR>
-            Payload: <TxEXTAREA cols=90 rows=4>".   print_r ($data_validado,1)  ."</TEXTAREA> <BR>
-            Retorno da API Call: <TxEXTAREA cols=90 rows=4>".print_r($result,1)."</TEXTAREA><BR>
-            Comando: <TxEXTAREA cols=90 rows=1>$debug</TEXTAREA>";
-          }
-          else{
-            $debug = "
-            HOST: ".gethostname ( )." <BR>
-            Endpoint: $url <BR>
-            Verb: $method<BR>
-            HTTP CODE: <font color=red>$http_code</font> <BR>
-            PARSE (<font color=red>$parseResposta</font>) <BR>
-            Tempo Execucao: ($total1) <BR>
-            Payload: <TxEXTAREA cols=90 rows=4>".   print_r ($data_validado,1)  ."</TEXTAREA> <BR>
-            Retorno da API Call: <TxEXTAREA cols=90 rows=4>".print_r($result,1)."</TEXTAREA><BR>
-            Comando: <TxEXTAREA cols=90 rows=1>$debug</TEXTAREA>";
-         }
-         */
 
          $result_identado = $this->IdentaRetorno( $result );
 
@@ -153,29 +135,30 @@ class RESTCall
          <quebralinha>Payload: <TxEXTAREA cols=90 rows=4>".   print_r ($data_validado,1)  ."</TEXTAREA> <BR>
          <quebralinha>Retorno da API Call:<BR> <TxEXTAREA cols=90 rows=4>".print_r($result_identado,1)."</TEXTAREA>";
 
-
-
-         if ( ($http_code != 200 ||  $parseResposta == "falso" && ($verbose == "ERRO" || $verbose == "SEMPRE" )) || $verbose == "SEMPRE" )
-          echo "\n <BR><BR> $debug <BR>";
+         if ( ($http_code != 200 ||  $parseResposta == "falso" && ($verbose == "ERRO" || $verbose == "SEMPRE" )) || $verbose == "SEMPRE" ){
+           echo "\n <BR><BR> $debug <BR>";
+         }
 
           if  (json_last_error() == JSON_ERROR_NONE){
              //SUCESSO
-              curl_close($curl);
-              $array_retorno_api = json_decode( $result , true);
 
+
+              //$array_retorno_api = json_decode( $result   , true);
+              $array_retorno_api =   json_decode( $result   , true)   ;
               $array_retorno_api["babirondo/rest-api"]["http_code"]  = $http_code;
+
+              curl_close($curl);
+
               $retorno  = $array_retorno_api ;
           }
           else{
             //DEU ERRO
-              ECHO  "<br>$url => HTTP CODE $http_code -- PARSE $parseResposta  --- VERBOSE $verbose <BR>";
-            //  $result["babirondo/rest-api"]["httpcode"] = $http_code . "erro";
-              echo "XTID: $xtid -> DEU ERRO NA CHAMADA DA API ".$decodeError[json_last_error()]." $verbose $http_code $parseResposta ";
-
+              echo "\n \n XTID: $xtid ->  ".$decodeError[json_last_error()]." ";
               curl_close($curl);
-              $retorno  = $result ;
-          }
 
+              $array_retorno_api["babirondo/rest-api"]["http_code"]  = $http_code;
+              $retorno  = $array_retorno_api ;
+          }
 
           return $retorno;
       }
